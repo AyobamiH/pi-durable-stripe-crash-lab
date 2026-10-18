@@ -1,0 +1,27 @@
+{
+  "name": "pi-stripe-crash-lab-local-only",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-06-11",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "vars": {
+    "STRIPE_TEST_GATEWAY_URL": "http://127.0.0.1:18962"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PAYMENT_AGENT",
+        "class_name": "PaymentAgent"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "PaymentAgent"
+      ]
+    }
+  ]
+}
