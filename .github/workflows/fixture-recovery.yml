@@ -1,0 +1,33 @@
+name: Offline Pi Durable crash recovery
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GATEWAY_MODE: fixture
+      STRIPE_TEST_SECRET_KEY: ""
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install pinned test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Gateway safety and isolation tests
+        run: npm test
+      - name: Actual Wrangler SIGKILL and Pi Durable recovery
+        run: npm run test:e2e

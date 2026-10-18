@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { environmentForChild } from "./process-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const mode = process.env.GATEWAY_MODE ?? "fixture";
@@ -35,11 +36,14 @@ let wrLogs = [];
 const startedAt = new Date().toISOString();
 
 function start(command, args, extraEnv, kind) {
+  // Only the gateway process may receive the test secret. The Pi worker and
+  // Wrangler have no payment-credential authority, even in a sandbox test.
+  const childEnv = environmentForChild(process.env, extraEnv, kind);
   const cp = spawn(command, args, {
     cwd: ROOT,
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, ...extraEnv }
+    env: childEnv
   });
   const logs = kind === "gateway" ? gwLogs : wrLogs;
   for (const stream of [cp.stdout, cp.stderr]) {

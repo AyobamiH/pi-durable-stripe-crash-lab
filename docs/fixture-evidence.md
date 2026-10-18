@@ -9,12 +9,13 @@ Package versions: agents 0.28.1, pi-durable 1.3.0, pi-ai 1.3.0, Wrangler 4.151.1
 | lab-041f6db2ae6bd0 | PASS | 1 | 1 | 0 |
 | lab-195e7b30220cd0 | PASS | 1 | 1 | 0 |
 | lab-47a4ec77919441 | PASS | 1 | 1 | 0 |
+| lab-e10b6c806f15b2 | PASS | 1 | 1 | 0 |
 
-All runs confirmed a durable externally recorded effect before deliberately SIGKILLing Wrangler. After restart, Pi returned its documented unsafe-tool interruption instead of executing the payment tool again. Submission of the same operation ID was rejected.
+All 4 local runs confirmed a durable externally recorded effect before deliberately SIGKILLing Wrangler. After restart, Pi returned its documented unsafe-tool interruption instead of executing the payment tool again. Submission of the same operation ID was rejected.
 
 Provider readback was fixture_only; this is **not** evidence of Stripe-side payment creation or webhook handling.
 
-Unit tests: 3/3 green — live key refusal, missing test-mode key refusal and fixture deduplication/parameter validation. TypeScript no-emit typecheck green.
+Unit tests: 4/4 green — live key refusal, missing test-mode key refusal, fixture deduplication/parameter validation, and isolation of test credentials from Wrangler/Pi. TypeScript no-emit typecheck green.
 
 The private per-run result JSON and traces reside in the ignored .evidence/runs directories on the authorised machine. The repository includes the reproducible source and assertions instead of publishing private raw logs.
 

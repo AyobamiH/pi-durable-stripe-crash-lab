@@ -4,7 +4,7 @@ Minimal, reproducible test of **Cloudflare PiHarness / Pi Durable** when an unsa
 
 **Status — 18 October 2026**
 - **PASS:** Actual PiHarness + Pi Durable + SQLite Durable Object crash/restart, deterministic faux model, isolated external fixture gateway
-- **PASS:** Gateway safety unit tests 3/3
+- **PASS:** Gateway safety and credential-isolation unit tests 4/4
 - **PENDING:** Genuine Stripe test-mode payment and provider readback — the connected account exposes live mode only and no test credential is installed
 - **NONE:** LLM charges, real Stripe payment, production deployment, Post-Once runtime changes, Tail Wagging checkout changes
 
@@ -26,6 +26,8 @@ The test crashes **after the external adapter confirms success and before Pi com
     npm run typecheck
     npm test
     npm run test:e2e
+
+The test secret is made available **only to the payment gateway**, not to the Pi/Wrangler process.
 
 A locally bound payment gateway (127.0.0.1:18962) runs outside Wrangler (127.0.0.1:18961). The test refuses occupied ports, creates a unique Durable Object and private .evidence/runs directory, SIGKILLs only its own Wrangler process and restarts it against the same SQLite persistence.
 
@@ -72,6 +74,8 @@ The Stripe test-mode step has NOT run yet; no Stripe object exists from these te
 ## Results and contribution
 
 Initial fixture run on 18 October 2026: PASS; Pi signalled that the unsafe tool was interrupted and might have partially run; toolExecutions=1, gatewayRequests=1, Stripe create requests=0.
+
+The offline GitHub Actions workflow runs the same typecheck, four unit tests and actual crash/recovery test without any Stripe credentials.
 
 Further results belong in local ignored .evidence/runs. Do not publish credentials or unreviewed raw logs.
 
