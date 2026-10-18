@@ -41,7 +41,11 @@ Assertions:
 
 Requires a test-only secret key beginning with sk_test_. Live keys are hard-blocked.
 
-Never put a secret in the repository. In the private machine shell:
+Never put a secret in the repository. The simplest route in a private interactive terminal is:
+
+    ./scripts/run-stripe-test.sh
+
+It prompts securely without echoing or storing the key. Alternatively, supply the key through a protected process environment:
 
     cd /path/to/experiment
     read -rs -p "Stripe TEST-only secret: " STRIPE_TEST_SECRET_KEY
