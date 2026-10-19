@@ -11,6 +11,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { environmentForChild } from "./process-env.mjs";
+import { assertMatchingReceipt, assertReadback } from "./acceptance.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const mode = process.env.GATEWAY_MODE ?? "fixture";
@@ -100,7 +101,8 @@ function startWrangler() {
 
 let result = {
   runId: id, startedAt, mode, upstream: "agents@0.28.1 / pi-durable@1.3.0",
-  noRealPayment: mode !== "stripe-test", passed: false, phases: []
+  noRealPayment: mode !== "stripe-test", noRealMoney: true, evidenceSchema: 2,
+  passed: false, phases: []
 };
 
 try {
@@ -144,6 +146,7 @@ try {
       firstGateway.stripeCreateRequests !== (mode === "stripe-test" ? 1 : 0)) {
     throw new Error("External boundary attempt counts incorrect before crash");
   }
+  assertMatchingReceipt(before, firstGateway, operationId, mode);
   result.providerId = receipt.id;
   result.phases.push("external_effect_observed_before_crash");
 
@@ -178,6 +181,7 @@ try {
       gatewayAfter.accepted[id]?.id !== receipt.id) {
     throw new Error("FAIL: duplicated execution or mismatched provider evidence");
   }
+  assertMatchingReceipt(after, gatewayAfter, operationId, mode);
   result.phases.push("no_automatic_unsafe_replay");
 
   const repeated = await json(workerBase + "/start?session=" + id, {
@@ -188,11 +192,19 @@ try {
     throw new Error("Duplicate operationId was not rejected: " + JSON.stringify(repeated));
   }
   result.phases.push("duplicate_operation_id_rejected");
+  // Fresh readbacks AFTER duplicate submission: a rejected admission alone is
+  // not proof that no additional tool or gateway operation occurred.
+  for (let observation = 0; observation < 3; observation++) {
+    await sleep(150);
+    assertMatchingReceipt(await json(stateUrl), await json(gatewayBase + "/state"), operationId, mode);
+  }
+  result.phases.push("post_duplicate_receipts_and_counts_unchanged");
 
   const verify = await json(gatewayBase + "/verify?operationId=" + id);
   if (mode === "stripe-test" && verify.verified !== true) {
     throw new Error("Stripe provider independent readback failed");
   }
+  assertReadback(verify, receipt, mode);
   result.providerVerification = verify;
   result.phases.push(mode === "stripe-test" ? "real_stripe_provider_readback" : "offline_fixture_only");
   result.toolExecutions = after.toolExecutions;

@@ -2,10 +2,10 @@
 
 Minimal, reproducible test of **Cloudflare PiHarness / Pi Durable** when an unsafe agent tool has already made an external payment-like side effect.
 
-**Status — 18 October 2026**
+**Status — 19 October 2026**
 - **PASS:** Actual PiHarness + Pi Durable + SQLite Durable Object crash/restart, deterministic faux model, isolated external fixture gateway
-- **PASS:** Gateway safety and credential-isolation unit tests 4/4
-- **PENDING:** Genuine Stripe test-mode payment and provider readback — the connected account exposes live mode only and no test credential is installed
+- **PASS:** Safety, credential-isolation and receipt-evidence unit tests 24/24
+- **PENDING:** Genuine Stripe test-mode payment and provider readback — the original test account is connected; the test process still has no STRIPE_TEST_SECRET_KEY binding
 - **NONE:** LLM charges, real Stripe payment, production deployment, Post-Once runtime changes, Tail Wagging checkout changes
 
 ## Why
@@ -36,6 +36,8 @@ Assertions:
 - Crash SIGKILL then wake and actual Pi Durable recovery
 - Pi reports an interrupted unsafe tool
 - One tool execution, one gateway request and no automatic replay
+- Exact agreement between Pi and gateway receipts before and after crash
+- Three fresh receipt/count checks after duplicate submission
 - Duplicate operation ID not accepted
 - Offline mode explicitly reports fixture_only rather than Stripe readback
 
@@ -75,7 +77,7 @@ The Stripe test-mode step has NOT run yet; no Stripe object exists from these te
 
 Initial fixture run on 18 October 2026: PASS; Pi signalled that the unsafe tool was interrupted and might have partially run; toolExecutions=1, gatewayRequests=1, Stripe create requests=0.
 
-The offline GitHub Actions workflow runs the same typecheck, four unit tests and actual crash/recovery test without any Stripe credentials.
+The offline GitHub Actions workflow runs the same typecheck, 24 unit tests and actual crash/recovery test without any Stripe credentials.
 
 Further results belong in local ignored .evidence/runs. Do not publish credentials or unreviewed raw logs.
 
@@ -88,3 +90,7 @@ Cloudflare upstream currently requests issues and discussions and is not accepti
 - https://docs.stripe.com/api/idempotent_requests
 - https://docs.stripe.com/testing
 - https://docs.stripe.com/api/payment_intents/create
+
+## 19 October execution record
+
+See [the latest execution record](docs/execution-20261019.md). The real Stripe-mode command was invoked and stopped at its missing-credential precondition before starting the gateway. The strengthened fixture crash test passed; that result does not close the Stripe-payment or hosted-Cloudflare gates.
