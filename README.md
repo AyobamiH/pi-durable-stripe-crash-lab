@@ -2,6 +2,12 @@
 
 Version-pinned evidence for Cloudflare PiHarness recovering around an external payment effect, using a deterministic faux model and Stripe test mode.
 
+## Read the case study
+
+**[The payment succeeded. The agent crashed. What should recovery do?](docs/case-study.md)**
+
+A technical account of the experiment, including the failed hosted assertion and the limits of the webhook evidence. Start with the [evidence guide](docs/evidence-guide.md); run `node scripts/verify-evidence.mjs` to check archive hashes and cross-file consistency without credentials or network access.
+
 ## Verified on 22 October 2026
 
 | Check | Outcome |
@@ -10,7 +16,7 @@ Version-pinned evidence for Cloudflare PiHarness recovering around an external p
 | Genuine GBP 1.00 Stripe test payment on hosted Cloudflare Durable Objects | Recovery independently verified: new instance, interrupted unsafe tool, one payment, duplicate submission rejected |
 | Crash before the external request | PASS: one interrupted tool, zero gateway requests |
 | Read-only replay control | PASS: unsafe executes once; safe executes twice and completes |
-| Signed Stripe webhook plus two deliberate signed HTTP replays | PASS: three deliveries, one recorded business consequence |
+| Signed Stripe webhook plus two deliberate signed HTTP replays | PASS: three deliveries, one stored payment marker; downstream fulfilment not exercised |
 | Safety, receipt, credential and webhook unit tests | 35/35 pass |
 | Independent Stripe connector readback | Two successful test PaymentIntents total, one per payment scenario; complete paginated-window result |
 | Paid LLM inference and real-money payments | None |

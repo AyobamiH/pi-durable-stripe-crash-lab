@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-10-22T20:39:33.454925+00:00",
+  "scope": "Publication validation only; no new Stripe or hosted payment run.",
+  "checks": {
+    "unit": {
+      "exitCode": 0,
+      "tests": 35,
+      "suites": 0,
+      "pass": 35,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "typecheck": {
+      "exitCode": 0
+    },
+    "archive": {
+      "exitCode": 0,
+      "result": {
+        "passed": true,
+        "validation": "offline archive integrity and cross-file consistency",
+        "evidenceSourceCommit": "ef235c267da51867b042a43e0cc8323781c19991",
+        "filesChecked": 45,
+        "checks": 250,
+        "providerRequestsMade": 0,
+        "independentThirdPartyAudit": false,
+        "qualifications": [
+          "Hosted original assertion failure retained; same-operation readback passed.",
+          "Webhook businessConsequences is a stored marker, not measured downstream fulfilment.",
+          "Hashes and consistency do not authenticate provider history."
+        ]
+      }
+    },
+    "negativeControls": {
+      "tamperedBytesRejected": true,
+      "mismatchedPaymentRejectedEvenWithUpdatedHash": true
+    },
+    "documentation": {
+      "localAndPinnedLinksValid": true,
+      "balancedCodeFences": true
+    },
+    "publicationCredentialPatternScan": {
+      "passed": true
+    }
+  }
+}

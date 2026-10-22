@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "Please cite this version-pinned experiment and link to its evidence guide."
+title: "Pi Durable and Stripe: a payment-boundary crash-recovery case study"
+type: software
+authors:
+  - name: "ayobamih"
+    website: "https://github.com/AyobamiH"
+version: "research-2026-10-22"
+date-released: "2026-10-22"
+repository-code: "https://github.com/AyobamiH/pi-durable-stripe-crash-lab"
+url: "https://github.com/AyobamiH/pi-durable-stripe-crash-lab/blob/main/docs/case-study.md"
+abstract: "A version-pinned PiHarness and Stripe test-mode fault-injection study with local and hosted recovery evidence, read-only replay controls, and explicit verification limits. Covers agents 0.28.1 and pi-durable 1.3.0. AI-assisted implementation and documentation."
+keywords:
+  - durable-execution
+  - fault-injection
+  - cloudflare-workers
+  - stripe-test-mode
+  - agent-recovery
