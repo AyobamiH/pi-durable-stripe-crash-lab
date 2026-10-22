@@ -1,0 +1,49 @@
+{
+  "runId": "lab-work-20261022-hosted-v2",
+  "startedAt": "2026-10-22T19:40:47.879Z",
+  "mode": "stripe-test",
+  "environment": "cloudflare-hosted",
+  "upstream": "agents@0.28.1 / pi-durable@1.3.0",
+  "crashMethod": "DurableObjectState.abort",
+  "noRealMoney": true,
+  "passed": false,
+  "phases": [
+    "unauthenticated_requests_denied",
+    "stripe_effect_before_tool_completion"
+  ],
+  "before": {
+    "instanceId": "0ab1bf78-890e-4207-b70e-022d0945512c",
+    "crashInjection": null,
+    "phase": "provider_accepted_waiting",
+    "toolExecutions": 1,
+    "providerReceipt": {
+      "operationId": "lab-work-20261022-hosted-v2",
+      "id": "pi_3UTRr4GbPfXt7ec50z2eLbbo",
+      "status": "succeeded",
+      "mode": "stripe-test",
+      "livemode": false
+    },
+    "alarmTime": 1792698079292
+  },
+  "gatewayBefore": {
+    "mode": "stripe-test",
+    "gatewayRequests": 1,
+    "stripeCreateRequests": 1,
+    "accepted": {
+      "lab-work-20261022-hosted-v2": {
+        "operationId": "lab-work-20261022-hosted-v2",
+        "id": "pi_3UTRr4GbPfXt7ec50z2eLbbo",
+        "status": "succeeded",
+        "mode": "stripe-test",
+        "livemode": false,
+        "requestId": "req_qt0KH04ylm2N2r"
+      }
+    },
+    "credentialConfigured": true,
+    "diagnostic": null
+  },
+  "providerId": "pi_3UTRr4GbPfXt7ec50z2eLbbo",
+  "crashResponse": "Error: HTTP 500: {\"error\":\"Intentional Pi laboratory crash after provider acceptance\"}",
+  "error": "Error: Timed out: {\"instanceId\":\"c10f60a6-8409-471d-a762-237f96ab8004\",\"crashInjection\":null,\"phase\":\"provider_accepted_waiting\",\"toolExecutions\":1,\"providerReceipt\":{\"operationId\":\"lab-work-20261022-hosted-v2\",\"id\":\"pi_3UTRr4GbPfXt7ec50z2eLbbo\",\"status\":\"succeeded\",\"mode\":\"stripe-test\",\"livemode\":false},\"alarmTime\":null}",
+  "finishedAt": "2026-10-22T19:42:22.577Z"
+}

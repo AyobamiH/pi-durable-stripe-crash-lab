@@ -9,13 +9,17 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { loadPrivateTestKey, verifyTestAccount, assertOperationScope } from "./test-scope.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const evidenceDir = process.env.LAB_EVIDENCE_DIR || path.join(root, ".evidence");
 fs.mkdirSync(evidenceDir, { recursive: true, mode: 0o700 });
 const evidenceFile = path.join(evidenceDir, "gateway-state.json");
 const mode = process.env.GATEWAY_MODE ?? "fixture";
-const key = process.env.STRIPE_TEST_SECRET_KEY ?? "";
+const key = mode === "stripe-test" && process.env.STRIPE_TEST_KEY_FILE
+  ? loadPrivateTestKey(process.env.STRIPE_TEST_KEY_FILE)
+  : process.env.STRIPE_TEST_SECRET_KEY ?? "";
+const allowedOperation = process.env.LAB_OPERATION_ID;
 
 if (!["fixture", "stripe-test"].includes(mode)) {
   throw new Error("Only fixture or stripe-test modes are supported");
@@ -26,6 +30,9 @@ if (mode === "stripe-test" && (!key.startsWith("sk_test_") || key.length < 20)) 
 if (key.startsWith("sk_live_")) {
   throw new Error("STRICT SAFETY GATE: live Stripe credentials prohibited");
 }
+
+const account = mode === "stripe-test" ? await verifyTestAccount(key) : null;
+if (mode === "stripe-test") assertOperationScope(allowedOperation, allowedOperation);
 
 let state = fs.existsSync(evidenceFile)
   ? JSON.parse(fs.readFileSync(evidenceFile, "utf8"))
@@ -61,11 +68,12 @@ function publicEntry(entry) {
 async function createTestPayment(operationId) {
   const form = new URLSearchParams({
     amount: "100", currency: "gbp", payment_method: "pm_card_visa",
-    confirm: "true", "payment_method_types[]": "card",
+    confirm: "true", "automatic_payment_methods[enabled]": "true",
+    "automatic_payment_methods[allow_redirects]": "never",
     "metadata[lab_operation]": operationId
   });
   const response = await fetch("https://api.stripe.com/v1/payment_intents", {
-    method: "POST",
+    method: "POST", redirect: "error", signal: AbortSignal.timeout(15000),
     headers: {
       "Authorization": "Bearer " + key,
       "Content-Type": "application/x-www-form-urlencoded",
@@ -87,7 +95,7 @@ async function createTestPayment(operationId) {
 
 const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/health") {
-    return send(res, 200, { ready: true, mode, stripeCredentialConfigured: mode === "stripe-test" });
+    return send(res, 200, { ready: true, mode, stripeCredentialConfigured: mode === "stripe-test", account });
   }
   if (req.method === "GET" && req.url === "/state") {
     const accepted = Object.fromEntries(Object.entries(state.accepted).map(
@@ -111,6 +119,7 @@ const server = http.createServer(async (req, res) => {
           payload.amount !== 100 || payload.currency !== "gbp") {
         return send(res, 400, { error: "Invalid fixed test-only request" });
       }
+      if (mode === "stripe-test") assertOperationScope(operationId, allowedOperation);
       state.gatewayRequests += 1;
       let entry = state.accepted[operationId];
       if (entry?.status === "succeeded") {

@@ -1,0 +1,26 @@
+{
+  "runId": "lab-work-20261022-hosted-v2",
+  "startedAt": "2026-10-22T19:44:41.578Z",
+  "endpointId": "we_1UTRlUGbPfXt7ec5LCmYMv3h",
+  "mode": "stripe-test",
+  "passed": true,
+  "originalStripeDelivery": {
+    "deliveries": 1,
+    "businessConsequences": 1,
+    "eventIds": [
+      "evt_3UTRr4GbPfXt7ec502cWTQe3"
+    ],
+    "paymentIntentId": "pi_3UTRr4GbPfXt7ec50z2eLbbo"
+  },
+  "afterSignedTestReplays": {
+    "deliveries": 3,
+    "businessConsequences": 1,
+    "eventIds": [
+      "evt_3UTRr4GbPfXt7ec502cWTQe3"
+    ],
+    "paymentIntentId": "pi_3UTRr4GbPfXt7ec50z2eLbbo"
+  },
+  "duplicateSource": "Two deliberately signed HTTP replays of the original Stripe-delivered payload; not Stripe retry scheduling",
+  "invalidSignatureRejected": true,
+  "finishedAt": "2026-10-22T19:44:44.395Z"
+}

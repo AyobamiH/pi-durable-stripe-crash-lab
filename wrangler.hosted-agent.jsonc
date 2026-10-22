@@ -1,0 +1,38 @@
+{
+  "name": "pi-stripe-lab-agent",
+  "main": "src/worker.ts",
+  "account_id": "6ddcbcb8474f1a7e460b2f0aabec0e2f",
+  "compatibility_date": "2026-10-22",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "LAB_HOSTED": "true",
+    "LAB_OPERATION_ID": "lab-work-20261022-hosted-v2",
+    "STRIPE_TEST_GATEWAY_URL": "https://gateway.internal"
+  },
+  "services": [
+    {
+      "binding": "STRIPE_GATEWAY",
+      "service": "pi-stripe-lab-gateway"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PAYMENT_AGENT",
+        "class_name": "PaymentAgent"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "PaymentAgent"
+      ]
+    }
+  ]
+}

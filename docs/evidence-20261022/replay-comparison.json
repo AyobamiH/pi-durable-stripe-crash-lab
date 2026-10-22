@@ -1,0 +1,22 @@
+{
+  "mode": "read-only-fixture",
+  "results": [
+    {
+      "replay": "unsafe",
+      "id": "probe-unsafe-1792698277954",
+      "externalPaymentRequests": 0,
+      "passed": true,
+      "calls": 1,
+      "outcome": "interrupted"
+    },
+    {
+      "replay": "safe",
+      "id": "probe-safe-1792698291360",
+      "externalPaymentRequests": 0,
+      "passed": true,
+      "calls": 2,
+      "outcome": "completed"
+    }
+  ],
+  "passed": true
+}

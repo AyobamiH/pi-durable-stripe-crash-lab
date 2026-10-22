@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-22T19:46:04.421Z",
+  "endpointId": "we_1UTRlUGbPfXt7ec5LCmYMv3h",
+  "endpointDeleted": true,
+  "removedSecrets": [
+    "STRIPE_TEST_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET"
+  ],
+  "disabledPublicEndpoints": [
+    "pi-stripe-lab-agent",
+    "pi-stripe-lab-webhook"
+  ]
+}

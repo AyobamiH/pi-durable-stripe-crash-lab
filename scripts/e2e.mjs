@@ -15,14 +15,17 @@ import { assertMatchingReceipt, assertReadback } from "./acceptance.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const mode = process.env.GATEWAY_MODE ?? "fixture";
+const scenario = process.env.LAB_SCENARIO ?? "after-provider";
+if (!["after-provider", "before-provider"].includes(scenario) || (scenario === "before-provider" && mode !== "fixture")) throw new Error("Invalid scenario or unsafe configuration");
 if (mode !== "fixture" && mode !== "stripe-test") throw new Error("Invalid test mode");
-if (mode === "stripe-test" && !process.env.STRIPE_TEST_SECRET_KEY?.startsWith("sk_test_")) {
+if (mode === "stripe-test" && !process.env.STRIPE_TEST_KEY_FILE && !process.env.STRIPE_TEST_SECRET_KEY?.startsWith("sk_test_")) {
   throw new Error("A real Stripe test requires STRIPE_TEST_SECRET_KEY=sk_test_...");
 }
 if (process.env.STRIPE_TEST_SECRET_KEY?.startsWith("sk_live_")) {
   throw new Error("STRICT SAFETY GATE: live Stripe secret not permitted");
 }
-const id = "lab-" + crypto.randomBytes(7).toString("hex");
+const id = process.env.LAB_OPERATION_ID ?? ("lab-" + crypto.randomBytes(7).toString("hex"));
+if (!/^lab-[a-z0-9-]{1,70}$/.test(id)) throw new Error("Invalid run ID");
 const runDir = path.join(ROOT, ".evidence", "runs", id);
 fs.mkdirSync(runDir, { recursive: true, mode: 0o700 });
 const gatewayBase = "http://127.0.0.1:18962";
@@ -94,13 +97,14 @@ function startWrangler() {
   return start(
     path.join(ROOT, "node_modules/.bin/wrangler"),
     ["dev", "--config", path.join(ROOT, "wrangler.jsonc"),
-      "--port", "18961", "--inspector-port", "0", "--persist-to", path.join(runDir, "wrangler")],
+      "--port", "18961", "--inspector-port", "0", "--persist-to", path.join(runDir, "wrangler"),
+      ...(scenario === "before-provider" ? ["--var", "LAB_CRASH_STAGE:before-provider"] : [])],
     { NODE_ENV: "test" }, "wrangler"
   );
 }
 
 let result = {
-  runId: id, startedAt, mode, upstream: "agents@0.28.1 / pi-durable@1.3.0",
+  runId: id, startedAt, mode, scenario, upstream: "agents@0.28.1 / pi-durable@1.3.0",
   noRealPayment: mode !== "stripe-test", noRealMoney: true, evidenceSchema: 2,
   passed: false, phases: []
 };
@@ -118,9 +122,10 @@ try {
     }
   }
   gateway = start(process.execPath, [path.join(ROOT, "scripts/gateway.mjs")],
-    { GATEWAY_MODE: mode, LAB_EVIDENCE_DIR: runDir }, "gateway");
+    { GATEWAY_MODE: mode, LAB_EVIDENCE_DIR: runDir, LAB_OPERATION_ID: id }, "gateway");
   const health = await eventually("gateway ready", () => json(gatewayBase + "/health"), (v) => v.ready);
   if (health.mode !== mode) throw new Error("Gateway unexpectedly switched modes");
+  result.accountVerification = health.account;
   result.phases.push("gateway_ready");
 
   wrangler = startWrangler();
@@ -133,6 +138,28 @@ try {
   });
   if (first.accepted !== true) throw new Error("First payment operation not accepted: " + JSON.stringify(first));
   result.phases.push("pi_operation_admitted");
+  if (scenario === "before-provider") {
+    await eventually("before external request", () => json(stateUrl), v => v.phase === "before_external_request" && v.toolExecutions === 1);
+    const initialGateway = await json(gatewayBase + "/state");
+    if (initialGateway.gatewayRequests !== 0 || initialGateway.stripeCreateRequests !== 0) throw new Error("Provider contacted before intended boundary");
+    await terminate(wrangler, "SIGKILL"); wrangler = null;
+    await sleep(300);
+    wrangler = startWrangler();
+    await eventually("worker revived", () => json(stateUrl), v => v.toolExecutions === 1, 60000);
+    const completed = await eventually("pre-request recovery", () => json(workerBase + "/result?session=" + id + "&operationId=" + id), v => v.status === "done", 60000);
+    if (!String(completed.text).startsWith("interrupted or failed:")) throw new Error("Unsafe pre-request tool did not report interruption");
+    const repeated = await json(workerBase + "/start?session=" + id, {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({operationId:id})});
+    if (repeated.accepted !== false) throw new Error("Duplicate admitted");
+    for(let n=0;n<3;n++){
+      await sleep(150);
+      const worker=await json(stateUrl), external=await json(gatewayBase+"/state");
+      if(worker.toolExecutions!==1 || external.gatewayRequests!==0 || external.stripeCreateRequests!==0 || Object.keys(external.accepted).length!==0) throw new Error("Unexpected external effect");
+    }
+    result.toolExecutions=1;result.gatewayRequests=0;result.stripeCreateRequests=0;
+    result.recoveryText=completed.text;
+    result.phases.push("crashed_before_external_request","unsafe_interruption_recovered","no_payment_attempt","duplicate_operation_rejected");
+    result.passed=true;
+  } else {
   const before = await eventually("effect committed before tool completion",
     () => json(stateUrl),
     (v) => v.phase === "provider_accepted_waiting" && v.toolExecutions === 1,
@@ -212,6 +239,7 @@ try {
   result.stripeCreateRequests = gatewayAfter.stripeCreateRequests;
   result.recoveryText = completed.text;
   result.passed = true;
+  }
 } catch (error) {
   result.error = error instanceof Error ? error.message : String(error);
   result.gatewayLogsTail = gwLogs.join("").slice(-2800);

@@ -1,0 +1,27 @@
+{
+  "name": "pi-lab-local-replay-probe",
+  "main": "src/replay-probe.ts",
+  "compatibility_date": "2026-06-11",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "vars": {
+    "PROBE_REPLAY": "unsafe"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROBE",
+        "class_name": "ReplayProbe"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ReplayProbe"
+      ]
+    }
+  ]
+}

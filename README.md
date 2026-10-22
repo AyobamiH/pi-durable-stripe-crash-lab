@@ -1,96 +1,95 @@
 # Pi Durable × Stripe crash-recovery safety lab
 
-Minimal, reproducible test of **Cloudflare PiHarness / Pi Durable** when an unsafe agent tool has already made an external payment-like side effect.
+Version-pinned evidence for Cloudflare PiHarness recovering around an external payment effect, using a deterministic faux model and Stripe test mode.
 
-**Status — 19 October 2026**
-- **PASS:** Actual PiHarness + Pi Durable + SQLite Durable Object crash/restart, deterministic faux model, isolated external fixture gateway
-- **PASS:** Safety, credential-isolation and receipt-evidence unit tests 24/24
-- **PENDING:** Genuine Stripe test-mode payment and provider readback — the original test account is connected; the test process still has no STRIPE_TEST_SECRET_KEY binding
-- **NONE:** LLM charges, real Stripe payment, production deployment, Post-Once runtime changes, Tail Wagging checkout changes
+## Verified on 22 October 2026
 
-## Why
+| Check | Outcome |
+| --- | --- |
+| Genuine GBP 1.00 Stripe test payment, local Wrangler SIGKILL and Pi recovery | PASS: one tool call, one gateway call, one successful PaymentIntent |
+| Genuine GBP 1.00 Stripe test payment on hosted Cloudflare Durable Objects | Recovery independently verified: new instance, interrupted unsafe tool, one payment, duplicate submission rejected |
+| Crash before the external request | PASS: one interrupted tool, zero gateway requests |
+| Read-only replay control | PASS: unsafe executes once; safe executes twice and completes |
+| Signed Stripe webhook plus two deliberate signed HTTP replays | PASS: three deliveries, one recorded business consequence |
+| Safety, receipt, credential and webhook unit tests | 35/35 pass |
+| Independent Stripe connector readback | Two successful test PaymentIntents total, one per payment scenario; complete paginated-window result |
+| Paid LLM inference and real-money payments | None |
 
-Durable execution does not guarantee exactly-once payment effects. The agent can crash after a provider accepts a consequential request but before its tool returns. The Pi replay policy "unsafe" prevents automatic replay. The separately running payment adapter maintains a durable operation identity, persists consequence intent before the external request and refuses retries when the provider outcome is uncertain.
+The hosted runner initially failed an overly strict crash-marker assertion. Its original failure is retained. A separate readback of the **same operation and payment**, without creating a replacement payment, verified the changed instance, terminal Pi transcript, matching receipts and unchanged counters. The runner now uses that verified acceptance method. This is disclosed in the [execution record](docs/execution-20261022.md).
 
-The test crashes **after the external adapter confirms success and before Pi commits a tool result**.
+These are tested integration boundaries, **not an exactly-once guarantee for all failures or evidence of a Pi defect**.
+
+## Evidence
+
+- [Execution record and limitations](docs/execution-20261022.md)
+- [Independent Stripe readback](docs/stripe-independent-readback-20261022.json)
+- [Local payment and crash](docs/evidence-20261022/local-stripe.json)
+- [Hosted recovery readback](docs/evidence-20261022/hosted-recovery-readback.json)
+- [Webhook delivery and duplicate handling](docs/evidence-20261022/webhook.json)
+- [Before-request interruption](docs/evidence-20261022/before-request.json)
+- [Safe/unsafe replay comparison](docs/evidence-20261022/replay-comparison.json)
+
+Historical fixture-only reports remain dated and unchanged.
 
 ## Pinned implementation
 
-- Node 24; agents 0.28.1; pi-durable 1.3.0; Wrangler 4; pi-ai pinned by package-lock
-- Cloudflare upstream code inspected at https://github.com/cloudflare/agents/tree/7dd51c518c51
-- The actual Pi Durable PiHarness from agents/harness/pi is tested here — not the separate experimental chat-recovery Pi Core fixture
+Node 24, agents 0.28.1, pi-durable 1.3.0, and the committed npm lockfile. These results do not claim to cover later Pi or Agents releases. The local runtime compatibility date is kept within the pinned workerd binary's supported range.
 
-## Offline, no model, no Stripe credential
+## Offline reproduction
 
-    npm ci --ignore-scripts
-    npm run typecheck
-    npm test
-    npm run test:e2e
+```sh
+npm ci --ignore-scripts
+npm run typecheck
+npm test
+npm run test:e2e
+LAB_SCENARIO=before-provider npm run test:e2e
+node scripts/replay-e2e.mjs
+```
 
-The test secret is made available **only to the payment gateway**, not to the Pi/Wrangler process.
+The runner checks for occupied ports, starts its own processes, SIGKILLs only its own Wrangler process group, and restarts against the same Durable Object persistence. Raw runtime evidence is ignored under .evidence/. The replay probe has no payment capability.
 
-A locally bound payment gateway (127.0.0.1:18962) runs outside Wrangler (127.0.0.1:18961). The test refuses occupied ports, creates a unique Durable Object and private .evidence/runs directory, SIGKILLs only its own Wrangler process and restarts it against the same SQLite persistence.
+GitHub Actions contains the offline checks. The hosted results are actual Cloudflare execution evidence, not a claim that GitHub's previously unavailable runner capacity was repaired.
 
-Assertions:
-- Provider-like external effect confirmed while Pi tool is still blocked
-- Crash SIGKILL then wake and actual Pi Durable recovery
-- Pi reports an interrupted unsafe tool
-- One tool execution, one gateway request and no automatic replay
-- Exact agreement between Pi and gateway receipts before and after crash
-- Three fresh receipt/count checks after duplicate submission
-- Duplicate operation ID not accepted
-- Offline mode explicitly reports fixture_only rather than Stripe readback
+## Stripe test execution
 
-## Genuine Stripe TEST payment (no real money)
+The gateway is fixed to GBP 1.00, pm_card_visa, a single predeclared lab operation, and the lab owner's test account. It verifies both account identity and livemode=false before creating a PaymentIntent. Live keys, another account, another operation, non-private credential files and uncertain retries fail closed.
 
-Requires a test-only secret key beginning with sk_test_. Live keys are hard-blocked.
+The existing owner can use hidden terminal input:
 
-Never put a secret in the repository. The simplest route in a private interactive terminal is:
+```sh
+./scripts/run-stripe-test.sh
+```
 
-    ./scripts/run-stripe-test.sh
+Or a dedicated owner-only mode-0600 file containing exactly one STRIPE_TEST_SECRET_KEY assignment:
 
-It prompts securely without echoing or storing the key. Alternatively, supply the key through a protected process environment:
+```sh
+STRIPE_TEST_KEY_FILE=/private/path/stripe-test.env ./scripts/run-stripe-test.sh
+```
 
-    cd /path/to/experiment
-    read -rs -p "Stripe TEST-only secret: " STRIPE_TEST_SECRET_KEY
-    echo
-    export STRIPE_TEST_SECRET_KEY
-    GATEWAY_MODE=stripe-test npm run test:e2e
-    unset STRIPE_TEST_SECRET_KEY
+The file is parsed as data; it is never sourced as shell code. Only the gateway loads the credential. The Pi/Wrangler child environment receives neither the key nor its source path. Other users must explicitly configure their own expected test account before running this owner-scoped lab.
 
-In test mode, the gateway makes one GBP 1.00 PaymentIntent with payment_method pm_card_visa and confirm=true against the real Stripe test API. It uses a stable operation-derived Stripe idempotency key. A successful response must have livemode=false and status=succeeded.
+## Hosted architecture
 
-After the crash and recovery, it reads the PaymentIntent directly from Stripe and checks ID, amount, currency, status, livemode and operation metadata. This test proves only the exact scoped outcome and adapter/API-call count, not Stripe-wide global uniqueness or all possible failure interleavings.
+- Agent Worker: protected control endpoint, faux model, PiHarness and a SQLite Durable Object; no Stripe key.
+- Gateway Worker: no public URL; service binding only; separate durable attempt ledger and test-only credential.
+- Webhook Worker: signature verification, timestamp tolerance, fixed operation scope and durable notification deduplication; no payment API credential.
 
-The Stripe test-mode step has NOT run yet; no Stripe object exists from these tests.
+All three use dedicated lab resources. Production checkouts, Post-Once, ClawSweeper and Agent Shop resources are not modified.
 
-## Safety boundaries
+Hosted configs are left with public exposure disabled after acceptance. The temporary Stripe webhook and hosted payment/signing secrets are removed during cleanup. Reproduction requires explicitly configuring a fresh operation scope, enabling the protected lab endpoints, binding test-only secrets, and registering a fresh temporary webhook. The setup scripts fail closed on a previously deleted webhook record.
 
-- Entire test runs in a new workspace, with no changes to user production credentials, timers, applications or customer checkout.
-- The adapter stores an attempt before Stripe calls. If the adapter crashes after Stripe accepts but before recording its response, it retains an uncertain attempt and refuses resubmission until independent reconciliation.
-- Stripe idempotency keys expire; business idempotency requires its own durable ledger.
-- Pi's unsafe interruption is passed back to the model; applications must still require renewed approval and reconcile unknown external outcomes. This lab's faux model deliberately cannot create a new payment on recovery.
-- Does not test real webhook delivery, customer authentication, approval controls, API-key rotation, deletes, actual financial settlement or hosted deployment.
-- A passing test is **not** evidence that Cloudflare contains a bug.
+## Durability boundary
 
-## Results and contribution
+The gateway records an attempt before contacting Stripe and never blindly retries an uncertain result. A succeeded operation returns the existing receipt. Stripe idempotency is a second layer; it is not the durable business ledger.
 
-Initial fixture run on 18 October 2026: PASS; Pi signalled that the unsafe tool was interrupted and might have partially run; toolExecutions=1, gatewayRequests=1, Stripe create requests=0.
+An unsafe Pi tool is reported as interrupted after recovery. The faux model does not invent a new payment operation. Application authorisation and durable operation identity remain necessary with a real model.
 
-The offline GitHub Actions workflow runs the same typecheck, 24 unit tests and actual crash/recovery test without any Stripe credentials.
-
-Further results belong in local ignored .evidence/runs. Do not publish credentials or unreviewed raw logs.
-
-Cloudflare upstream currently requests issues and discussions and is not accepting unsolicited external PRs. If a real distinct defect appears, create a minimal report with exact versions, reproduction and logs rather than filing duplicates.
+The signed duplicate webhook requests are deliberate test replays of the original Stripe-delivered payload, not evidence about Stripe's automatic retry scheduler.
 
 ## References
 
 - https://developers.cloudflare.com/agents/harnesses/pi/
-- https://github.com/cloudflare/agents
+- https://developers.cloudflare.com/durable-objects/api/state/
 - https://docs.stripe.com/api/idempotent_requests
-- https://docs.stripe.com/testing
 - https://docs.stripe.com/api/payment_intents/create
-
-## 19 October execution record
-
-See [the latest execution record](docs/execution-20261019.md). The real Stripe-mode command was invoked and stopped at its missing-credential precondition before starting the gateway. The strengthened fixture crash test passed; that result does not close the Stripe-payment or hosted-Cloudflare gates.
+- https://docs.stripe.com/webhooks

@@ -16,6 +16,7 @@ jobs:
     env:
       GATEWAY_MODE: fixture
       STRIPE_TEST_SECRET_KEY: ""
+      STRIPE_TEST_KEY_FILE: ""
       NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
@@ -31,3 +32,7 @@ jobs:
         run: npm test
       - name: Actual Wrangler SIGKILL and Pi Durable recovery
         run: npm run test:e2e
+      - name: Crash before external request
+        run: LAB_SCENARIO=before-provider npm run test:e2e
+      - name: Compare safe and unsafe read-only replay
+        run: node scripts/replay-e2e.mjs

@@ -1,0 +1,26 @@
+{
+  "mode": "stripe-test",
+  "gatewayRequests": 1,
+  "stripeCreateRequests": 0,
+  "accepted": {
+    "lab-work-20261022-hosted": {
+      "operationId": "lab-work-20261022-hosted",
+      "status": "attempt_committed",
+      "id": null,
+      "mode": "stripe-test",
+      "livemode": false
+    }
+  },
+  "preflight": [
+    {
+      "route": "account",
+      "error": "Invalid redirect value, must be one of \"follow\" or \"manual\" (\"error\" won't be implemented since it does not make sense at the edge; use \"manual\" and check the response status code)."
+    },
+    {
+      "route": "balance",
+      "error": "Invalid redirect value, must be one of \"follow\" or \"manual\" (\"error\" won't be implemented since it does not make sense at the edge; use \"manual\" and check the response status code)."
+    }
+  ],
+  "credentialConfigured": true,
+  "diagnostic": null
+}

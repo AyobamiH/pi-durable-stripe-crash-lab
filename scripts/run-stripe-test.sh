@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# No key on disk, no paste into ChatGPT, and no live-mode fallback.
+# Hidden terminal input or a private test-key file; no live-mode fallback.
 set -euo pipefail
 umask 077
+
+if [[ -n "${STRIPE_TEST_KEY_FILE:-}" ]]; then
+  cd "$(dirname "$0")/.."
+  GATEWAY_MODE=stripe-test exec node scripts/e2e.mjs
+fi
 
 if [[ -z "${STRIPE_TEST_SECRET_KEY:-}" ]]; then
   if [[ ! -t 0 ]]; then

@@ -1,0 +1,34 @@
+{
+  "runId": "lab-work-20261022-final-fixture",
+  "startedAt": "2026-10-22T19:47:03.763Z",
+  "mode": "fixture",
+  "scenario": "after-provider",
+  "upstream": "agents@0.28.1 / pi-durable@1.3.0",
+  "noRealPayment": true,
+  "noRealMoney": true,
+  "evidenceSchema": 2,
+  "passed": true,
+  "phases": [
+    "gateway_ready",
+    "worker_ready",
+    "pi_operation_admitted",
+    "external_effect_observed_before_crash",
+    "wrangler_sigkill",
+    "pi_recovery_completed",
+    "no_automatic_unsafe_replay",
+    "duplicate_operation_id_rejected",
+    "post_duplicate_receipts_and_counts_unchanged",
+    "offline_fixture_only"
+  ],
+  "accountVerification": null,
+  "providerId": "fixture_pi_43b069d5e6b847ea81ae",
+  "providerVerification": {
+    "verified": false,
+    "reason": "fixture_only"
+  },
+  "toolExecutions": 1,
+  "gatewayRequests": 1,
+  "stripeCreateRequests": 0,
+  "recoveryText": "interrupted or failed: Initiating test-mode external operation\n<harness>\n[error] Tool stripe_test_payment was interrupted and may have partially run\n</harness>",
+  "finishedAt": "2026-10-22T19:47:18.806Z"
+}

@@ -1,0 +1,10 @@
+import fs from "node:fs";import path from "node:path";
+const root=path.resolve(import.meta.dirname,"..");
+const id=JSON.parse(fs.readFileSync(path.join(root,"wrangler.hosted-agent.jsonc"),"utf8")).vars.LAB_OPERATION_ID;
+const {LAB_CONTROL_TOKEN:token}=JSON.parse(fs.readFileSync(path.join(process.env.HOME,".config/pi-durable-stripe-lab/hosted-control.json"),"utf8"));
+const r=await fetch("https://pi-stripe-lab-agent.woeinvests.workers.dev/gateway-state?session="+id+"&preflight=1",{headers:{authorization:"Bearer "+token},signal:AbortSignal.timeout(25000)});
+const d=await r.json();
+const dir=path.join(root,".evidence/runs",id);fs.mkdirSync(dir,{recursive:true,mode:0o700});
+fs.writeFileSync(path.join(dir,"preflight.json"),JSON.stringify(d,null,2)+"\n",{mode:0o600});
+if(!r.ok||!d.credentialConfigured||!d.preflight?.some(x=>x.route==="account"&&x.httpStatus===200&&x.accountId==="acct_1QNKKrGbPfXt7ec5")||!d.preflight?.some(x=>x.route==="balance"&&x.httpStatus===200&&x.livemode===false))throw new Error("Hosted Stripe preflight failed: "+JSON.stringify(d));
+console.log(JSON.stringify({runId:id,account:"acct_1QNKKrGbPfXt7ec5",livemode:false,preflightPassed:true,existingPaymentRequests:d.stripeCreateRequests}));

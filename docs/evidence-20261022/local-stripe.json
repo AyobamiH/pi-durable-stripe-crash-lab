@@ -1,0 +1,40 @@
+{
+  "runId": "lab-work-20261022-local",
+  "startedAt": "2026-10-22T19:27:27.194Z",
+  "mode": "stripe-test",
+  "upstream": "agents@0.28.1 / pi-durable@1.3.0",
+  "noRealPayment": false,
+  "noRealMoney": true,
+  "evidenceSchema": 2,
+  "passed": true,
+  "phases": [
+    "gateway_ready",
+    "worker_ready",
+    "pi_operation_admitted",
+    "external_effect_observed_before_crash",
+    "wrangler_sigkill",
+    "pi_recovery_completed",
+    "no_automatic_unsafe_replay",
+    "duplicate_operation_id_rejected",
+    "post_duplicate_receipts_and_counts_unchanged",
+    "real_stripe_provider_readback"
+  ],
+  "accountVerification": {
+    "accountId": "acct_1QNKKrGbPfXt7ec5",
+    "livemode": false
+  },
+  "providerId": "pi_3UTReLGbPfXt7ec50W8SyVvv",
+  "providerVerification": {
+    "verified": true,
+    "mode": "stripe-test",
+    "id": "pi_3UTReLGbPfXt7ec50W8SyVvv",
+    "status": "succeeded",
+    "livemode": false,
+    "metadataMatches": true
+  },
+  "toolExecutions": 1,
+  "gatewayRequests": 1,
+  "stripeCreateRequests": 1,
+  "recoveryText": "interrupted or failed: Initiating test-mode external operation\n<harness>\n[error] Tool stripe_test_payment was interrupted and may have partially run\n</harness>",
+  "finishedAt": "2026-10-22T19:27:54.811Z"
+}

@@ -1,0 +1,20 @@
+{
+  "mode": "stripe-test",
+  "gatewayRequests": 0,
+  "stripeCreateRequests": 0,
+  "accepted": {},
+  "preflight": [
+    {
+      "route": "account",
+      "httpStatus": 200,
+      "accountId": "acct_1QNKKrGbPfXt7ec5"
+    },
+    {
+      "route": "balance",
+      "httpStatus": 200,
+      "livemode": false
+    }
+  ],
+  "credentialConfigured": true,
+  "diagnostic": null
+}
