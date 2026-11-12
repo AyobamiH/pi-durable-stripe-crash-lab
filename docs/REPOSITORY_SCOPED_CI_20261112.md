@@ -4,7 +4,7 @@ The original GitHub Actions job for [PR #2](https://github.com/AyobamiH/pi-durab
 
 ## Implementation
 
-The repository's existing `.github/workflows/fixture-recovery.yml` now targets an owner-operated ephemeral runner labelled `pi-research` instead of `ubuntu-latest`. This is one job containing the **original pinned Pi 1.3 fixture checks** and all four recovery-contract test suites:
+The repository's existing `.github/workflows/fixture-recovery.yml` now targets an owner-operated ephemeral runner labelled `pi-research` instead of `ubuntu-latest`. This is one job containing the **original pinned Pi 1.3 fixture checks** and all four recovery-contract test suites: The JIT advertised only the custom pi-research label, not default Linux/X64/self-hosted labels; the workflow selector must match that exact repository-scoped label.
 
 1. Node 24 install from committed npm lockfile, static TypeScript and 35 original unit tests.
 2. Original Wrangler SIGKILL/restart after-provider and before-provider fixture experiments.

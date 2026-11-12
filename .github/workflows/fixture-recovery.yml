@@ -14,7 +14,9 @@ jobs:
     # GitHub-hosted Actions are blocked before any steps run. Use a repository-scoped
     # JIT runner with an immutable owner-run ephemeral container; no global fleet edits.
     if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'AyobamiH')
-    runs-on: [self-hosted, Linux, X64, pi-research]
+    # GitHub JIT API registered only the requested custom label; it did not
+    # populate default self-hosted/Linux/X64 labels. Match this repo-only label.
+    runs-on: pi-research
     timeout-minutes: 12
     env:
       GATEWAY_MODE: fixture
