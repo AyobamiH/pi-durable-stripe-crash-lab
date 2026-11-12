@@ -11,7 +11,12 @@ permissions:
 
 jobs:
   fixture-recovery:
-    runs-on: ubuntu-latest
+    # GitHub-hosted Actions are blocked before any steps run. Use a repository-scoped
+    # JIT runner with an immutable owner-run ephemeral container; no global fleet edits.
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'AyobamiH')
+    # GitHub JIT API registered only the requested custom label; it did not
+    # populate default self-hosted/Linux/X64 labels. Match this repo-only label.
+    runs-on: pi-research
     timeout-minutes: 12
     env:
       GATEWAY_MODE: fixture
@@ -19,8 +24,10 @@ jobs:
       STRIPE_TEST_KEY_FILE: ""
       NODE_ENV: test
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
           cache: npm
@@ -36,3 +43,11 @@ jobs:
         run: LAB_SCENARIO=before-provider npm run test:e2e
       - name: Compare safe and unsafe read-only replay
         run: node scripts/replay-e2e.mjs
+      - name: Four-policy fault matrix (120 isolated cells)
+        run: node experiments/recovery-contract/run.mjs --output .evidence/recovery/ci-matrix
+      - name: Real competing recovery processes
+        run: node experiments/recovery-contract/concurrency-e2e.mjs --output .evidence/recovery/ci-concurrency
+      - name: SIGKILL webhook downstream E2E
+        run: node experiments/recovery-contract/webhook-e2e.mjs --output .evidence/recovery/ci-webhook
+      - name: Adversarial permission and identity controls
+        run: node experiments/recovery-contract/adversarial-e2e.mjs --output .evidence/recovery/ci-adversarial
