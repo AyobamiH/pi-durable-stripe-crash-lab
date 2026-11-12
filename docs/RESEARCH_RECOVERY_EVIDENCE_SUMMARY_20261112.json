@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "title": "Recovery contracts under simulated provider uncertainty",
+  "date": "2026-11-12",
+  "authors": [
+    "Ayobami John Haastrup"
+  ],
+  "authorOperated": true,
+  "sourceBaseline": "74a4521da15f4bec16e207e91323b426ef02b32d",
+  "simulation": {
+    "cases": 120,
+    "policies": 4,
+    "faults": 10,
+    "repetitions": 3,
+    "scores": {
+      "A-new-key": {
+        "scenarios": 30,
+        "unsafe": 24,
+        "duplicates": 21,
+        "unauthorisedDispatches": 6,
+        "lateCommitsAfterRevocation": 3,
+        "authorisedProgressCases": 6,
+        "unnecessaryHolds": 0,
+        "unresolvedClaims": 0,
+        "falseClaims": 0
+      },
+      "B-stable-key": {
+        "scenarios": 30,
+        "unsafe": 9,
+        "duplicates": 3,
+        "unauthorisedDispatches": 6,
+        "lateCommitsAfterRevocation": 3,
+        "authorisedProgressCases": 18,
+        "unnecessaryHolds": 0,
+        "unresolvedClaims": 3,
+        "falseClaims": 0
+      },
+      "C-authority-ledger": {
+        "scenarios": 30,
+        "unsafe": 0,
+        "duplicates": 0,
+        "unauthorisedDispatches": 0,
+        "lateCommitsAfterRevocation": 3,
+        "authorisedProgressCases": 18,
+        "unnecessaryHolds": 0,
+        "unresolvedClaims": 3,
+        "falseClaims": 0
+      },
+      "D-hold": {
+        "scenarios": 30,
+        "unsafe": 0,
+        "duplicates": 0,
+        "unauthorisedDispatches": 0,
+        "lateCommitsAfterRevocation": 3,
+        "authorisedProgressCases": 3,
+        "unnecessaryHolds": 3,
+        "unresolvedClaims": 27,
+        "falseClaims": 0
+      }
+    },
+    "negativeControls": {
+      "unsafeNewKeyDuplicatesDetected": true,
+      "stableKeyExpiredSimulatedDuplicateDetected": true,
+      "conflictingPayloadRejected": true,
+      "holdOnUncertainSacrificesProgress": true,
+      "authorityPolicyZeroDuplicatesWithinSimulation": true,
+      "lateCommitAfterCancelDistinguishedFromNewDispatch": true,
+      "providerReadbackUnavailableMarkedUnknown": true
+    }
+  },
+  "concurrent": {
+    "runs": 9,
+    "policies": {
+      "A-new-key": {
+        "runs": 3,
+        "admitted": 6,
+        "effects": 6,
+        "duplicates": 3
+      },
+      "B-stable-key": {
+        "runs": 3,
+        "admitted": 6,
+        "effects": 3,
+        "duplicates": 0
+      },
+      "C-authority-ledger": {
+        "runs": 3,
+        "admitted": 3,
+        "effects": 3,
+        "duplicates": 0
+      }
+    },
+    "realOsWorkersPerRun": 2
+  },
+  "webhook": {
+    "cases": 15,
+    "realSigkill": true,
+    "receiverEffects": 15,
+    "duplicatedDeliveriesPrevented": true,
+    "cooperatingReceiver": true
+  },
+  "adversarial": {
+    "repetitions": 3,
+    "unauthorisedProposalsRejected": 15,
+    "revokedRetriesRejected": 3
+  },
+  "historicalStripeReadback": {
+    "verifiedAt": "2026-11-12T10:23:59.518Z",
+    "mode": "GET-only account-authorised Stripe test mode",
+    "originalPaymentIntentCount": 2,
+    "allOriginalSucceeded": true,
+    "abandonedDay2OperationMatchingPaymentIntents": 0,
+    "completeObservationWindow": true,
+    "noWrites": true
+  },
+  "ownerPrivateEvidence": {
+    "manifestSha256": "672eb91ba58940c98bf96a40f6e47ee54f476917d02578bdee6a66f6b8e3e0fe",
+    "files": 864,
+    "sha256CorruptionControlRejected": true
+  },
+  "disclosure": {
+    "originalHostedRerunFreshlyPassed": false,
+    "actualStripeKeyPruningObserved": false,
+    "externalReviewObtained": false,
+    "originalScientificNoveltyEstablished": false,
+    "generalExactlyOnceClaim": false,
+    "productionReadyProviderRecovery": false
+  },
+  "methodology": "Local deterministic cooperating-provider simulation with separate SQLite ledgers and actual killed/restarted OS processes; no payment creation, no hosted payment production acceptance.",
+  "publicSourceCodeDirectory": "experiments/recovery-contract"
+}
