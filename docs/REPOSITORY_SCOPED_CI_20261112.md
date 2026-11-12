@@ -4,7 +4,7 @@ The original GitHub Actions job for [PR #2](https://github.com/AyobamiH/pi-durab
 
 ## Implementation
 
-The repository's existing `.github/workflows/fixture-recovery.yml` now targets an owner-operated ephemeral runner labelled `pi-research` instead of `ubuntu-latest`. This is one job containing the **original pinned Pi 1.3 fixture checks** and all four recovery-contract test suites: The JIT advertised only the custom pi-research label, not default Linux/X64/self-hosted labels; the workflow selector must match that exact repository-scoped label.
+The repository's existing `.github/workflows/fixture-recovery.yml` now targets an owner-operated ephemeral runner labelled `pi-research` instead of `ubuntu-latest`. The workflow contains the **original pinned Pi 1.3 fixture checks** and all four recovery-contract test suites. The JIT advertised only the custom pi-research label, not the default Linux/X64/self-hosted labels; the workflow selector matches that repository-specific label.
 
 1. Node 24 install from committed npm lockfile, static TypeScript and 35 original unit tests.
 2. Original Wrangler SIGKILL/restart after-provider and before-provider fixture experiments.
@@ -24,3 +24,24 @@ For each PR or main event, confirm the exact SHA, registered job status and avai
 If the runner cannot start, preserve the pending job and its recorded source; don't silently switch back to paid GitHub-hosted execution. A stale or interrupted JIT session must be reconciled by runner registry and job readback before registering another runner.
 
 This release documents a manually activated, zero-hosted-minute CI route. It does not falsely claim an always-on queue consumer, cloud availability while `web` is offline, or a maintenance-free CI platform.
+
+
+## Observed GitHub Actions blocker (12 November 2026)
+
+The JIT runner initially registered and connected, but GitHub invalidated its session before executing a step. The broker reported TaskAgentSessionExpiredException: Runner session is invalid and Registration ... was not found. The runner registry became empty and the workflow job remained queued with zero executed steps. A second registration-token route stopped before issuing a token because GitHub's API TLS handshake timed out.
+
+These are remote admission observations, not failing source tests. The JIT script remains diagnostic only; it is **not currently accepted as a working CI executor**. Do not repeatedly register runners or describe a queued job as passed.
+
+## Verified exact-source local fallback
+
+Run the pinned container without relying on GitHub's runner registration service:
+
+~~~sh
+bash ops/run-local-exact-source-ci.sh FULL_40_CHARACTER_SHA agent/pi-research-days3-6-20261112
+~~~
+
+The command checks the owner's exact remote branch HEAD, acquires a single-run lock, clones public source at that SHA and runs the same source test commands in the pinned unprivileged Docker image. It writes a private exit-code receipt and SHA-256 log under ~/.local/state/pi-durable-exact-source-ci. There are no host mounts, Docker socket, GitHub token, Stripe credentials or production actions inside the test container. Docker bridge allows network egress to public GitHub/npm; this is not a sandbox for arbitrary hostile source.
+
+A private execution of this recipe passed against signed commit 5eb655a4a57b00964ac19b4d06c0eb277a92b26b: lockfile installation, TypeScript, all 35 original unit tests, both Wrangler crash E2Es, replay comparison, 120 recovery matrix cells, nine concurrent runs, 15 SIGKILL webhook cases and three adversarial groups. Its log SHA-256 is 1619f4388944bdd1b7e3ddddccc1b3b2b164aa46a0bfc0e03357c6778b3abbc0.
+
+**Evidence separation:** an owner-local success must use its own local CI status context. It neither alters the queued fixture-recovery GitHub Actions result nor proves GitHub provider acceptance. A later source revision must be re-tested at its exact SHA.

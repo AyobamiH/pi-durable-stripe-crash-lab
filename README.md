@@ -54,7 +54,7 @@ node scripts/replay-e2e.mjs
 
 The runner checks for occupied ports, starts its own processes, SIGKILLs only its own Wrangler process group, and restarts against the same Durable Object persistence. Raw runtime evidence is ignored under .evidence/. The replay probe has no payment capability.
 
-GitHub Actions contains the offline checks. The hosted results are actual Cloudflare execution evidence, not a claim that GitHub's previously unavailable runner capacity was repaired.
+GitHub Actions declares the offline checks, but the repository-scoped runner session was invalidated server-side on 12 November 2026. The same commands can run in an owner-local disposable container using ops/run-local-exact-source-ci.sh; see [the CI guide](docs/REPOSITORY_SCOPED_CI_20261112.md). Its private receipt is distinct from a green GitHub Actions job. The historical hosted Cloudflare evidence remains separate.
 
 ## Stripe test execution
 
