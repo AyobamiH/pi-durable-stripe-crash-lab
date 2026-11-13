@@ -1,0 +1,31 @@
+{
+  "name": "pi14-hosted-reproduce-unique-new-name-required",
+  "main": "worker.js",
+  "account_id": "6ddcbcb8474f1a7e460b2f0aabec0e2f",
+  "compatibility_date": "2026-10-25",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "LAB_HOSTED": "true",
+    "LAB_ALLOWED_OPERATION_IDS": "[\"probe-replace-with-one-off-id\"]"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROBE",
+        "class_name": "Probe"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Probe"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "probe-nov13-ca58b4f6-retry",
+  "initial": {
+    "alarm": null,
+    "calls": 0,
+    "completed": false,
+    "crashes": 0,
+    "instance": "a4a3cc97-214f-4ee0-ba68-5eaf842bc4b8",
+    "lastCrash": null,
+    "pending": [],
+    "reports": []
+  },
+  "outOfScopeDenied": true,
+  "statusCode": 200,
+  "time": "2026-11-13T00:28:58.762Z",
+  "unauthorisedDenied": true,
+  "workerName": "pi14-hosted-lab-ca58b4f6"
+}

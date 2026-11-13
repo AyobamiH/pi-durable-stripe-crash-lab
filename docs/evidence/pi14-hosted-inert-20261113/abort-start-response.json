@@ -1,0 +1,9 @@
+{
+  "at": "2026-11-13T00:34:04.904Z",
+  "body": {
+    "accepted": true,
+    "operationId": "probe-nov13-ca58b4f6-abort",
+    "session": "1"
+  },
+  "http": 200
+}

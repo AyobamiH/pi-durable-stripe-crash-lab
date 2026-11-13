@@ -1,0 +1,16 @@
+{
+  "alarm": 1794529805002,
+  "calls": 1,
+  "completed": false,
+  "crashes": 0,
+  "instance": "bf2a2e2d-8bf7-4a47-b381-21ac7ebb3a45",
+  "lastCrash": null,
+  "pending": [
+    {
+      "operationId": "probe-nov13-ca58b4f6-retry",
+      "session": "1",
+      "status": "running"
+    }
+  ],
+  "reports": []
+}

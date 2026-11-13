@@ -1,0 +1,1 @@
+{"name":"aiwa-pi14-lifecycle-lab","version":"0.1.0","private":true,"type":"module","dependencies":{"agents":"0.30.1","@earendil-works/pi-ai":"1.4.0","@earendil-works/pi-durable":"1.4.0","@earendil-works/chord":"1.4.0"},"devDependencies":{"wrangler":"4.151.2"}}
