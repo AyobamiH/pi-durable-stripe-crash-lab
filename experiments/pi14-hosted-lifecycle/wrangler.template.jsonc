@@ -1,0 +1,35 @@
+{
+  "name": "pi14-hosted-replace-with-fresh-id",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-25",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "LAB_HOSTED": "true",
+    "LAB_ALLOWED_IDS": "[]"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROBE",
+        "class_name": "Probe"
+      },
+      {
+        "name": "WITNESS",
+        "class_name": "Witness"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Probe",
+        "Witness"
+      ]
+    }
+  ]
+}
