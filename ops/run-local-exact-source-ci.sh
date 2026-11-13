@@ -45,6 +45,7 @@ docker run --rm --init --name "$name" --network bridge \
     echo "CI_PHASE replay"; node scripts/replay-e2e.mjs
     echo "CI_PHASE matrix"; node experiments/recovery-contract/run.mjs --output .evidence/recovery/ci-matrix
     echo "CI_PHASE concurrency"; node experiments/recovery-contract/concurrency-e2e.mjs --output .evidence/recovery/ci-concurrency
+    echo "CI_PHASE subprocess_lifecycle"; node --test experiments/recovery-contract/subprocess-receipt.test.mjs
     echo "CI_PHASE webhook"; node experiments/recovery-contract/webhook-e2e.mjs --output .evidence/recovery/ci-webhook
     echo "CI_PHASE adversarial"; node experiments/recovery-contract/adversarial-e2e.mjs --output .evidence/recovery/ci-adversarial
     node --input-type=module -e '\''

@@ -30,7 +30,7 @@ An injected SIGKILL is accepted only when there is a SIGKILL signal **and no tim
 - ordinary nonzero exit rejected;
 - unbounded timeout configuration rejected.
 
-The GitHub workflow now runs these checks before the real subprocess webhook suite. The original sender/receiver idempotency implementation and its durable business semantics are unchanged; this is a **test observability and robustness correction**.
+The GitHub workflow and the separate owner-local exact-source CI runner now run these checks before the real subprocess webhook suite. The original sender/receiver idempotency implementation and its durable business semantics are unchanged; this is a **test observability and robustness correction**.
 
 The exact-source acceptance remains: original Pi 1.3/Harness tests, two local SIGKILL crash boundaries, safe/unsafe replay, 120-case recovery matrix, 9 real concurrent process runs, 15 receiver-effect webhook cases and 3 adversarial groups. Full GitHub CI acceptance on the corrected head must be read back; local success alone does not establish GitHub provider acceptance.
 
