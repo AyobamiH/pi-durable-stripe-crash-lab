@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-13T00:33:24.877Z",
+  "environment": "hosted Cloudflare Pi 1.4.0, Agents 0.30.1, deterministic faux provider, zero consequential external calls",
+  "id": "probe-nov13-ca58b4f6-retry",
+  "observed": {
+    "alarm": null,
+    "calls": 3,
+    "completed": true,
+    "crashes": 0,
+    "instance": "c989aa27-1f13-43a1-b7c9-ddb229e4f2ea",
+    "lastCrash": null,
+    "pending": [],
+    "reports": []
+  },
+  "result": {
+    "settled": true,
+    "value": {
+      "operationId": "probe-nov13-ca58b4f6-retry",
+      "session": "1",
+      "status": "done",
+      "text": "completed"
+    }
+  },
+  "simulatedExternalEffects": 0
+}

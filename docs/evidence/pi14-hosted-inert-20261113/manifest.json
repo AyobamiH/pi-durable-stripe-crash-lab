@@ -1,0 +1,31 @@
+{
+  "files": {
+    "abort-inflight-observed.json": "08af0d072cca0dcd7b464ba65166ef0de1054a5b010dfd3cc52261585e0c641a",
+    "abort-start-response.json": "acfc9ff7651f8dc510445b196e5086a2d7b2c0e228ec2ee42ac337d7bf00dbe7",
+    "preflight-readback.json": "60953e39878e0424a3b292b0cd7c6d15ccf25420bda6acda8af753392bca9148",
+    "retry-after-crash1.json": "d8e1d7d3b6804ff38ae6e8a635440d274780a4fa941501ecd3cc0fe5eb7fb49b",
+    "retry-after-crash2.json": "67dbc9dae1495e7e1945bac776afeb419244cf4f918228bfe90da63f057edc0f",
+    "retry-crash1-result.json": "9bc6fb1252d9f0d2cf1b4a4b80643fa7c3421b10c7e1dee6008cc881fd8883f3",
+    "retry-crash2-result.json": "1428935e56d697351ff8600e9570388e9fcd2f84e8d54b40418a21e1a2a76b5e",
+    "retry-final-readback.json": "3ca2f7a81bd0caba55953c35d9bf19e77f6dad687da2af62e66061045198adf2",
+    "retry-inflight-observed.json": "46318047e6654e199b86e4f2e59015f8fcbe62de2f5a9515bc088abd94c6ce4c",
+    "retry-release-response.json": "fc9377f3c1500dace329209bd254c641bb945fe42f106edd9ad2b5538820a970",
+    "retry-retry-response.json": "fc669a88488b7eec6b8e929b820883898dde23817bcbd0d39176bcdf732e69a8",
+    "retry-start-response.json": "e0a3168ffe876bf349ab5c1342dc291b12071cdccc02ccd5a341ae9fdef4e478"
+  },
+  "hostedAbortFinished": false,
+  "hostedRetryDone": true,
+  "limitations": "Owner-recorded source and readbacks. No third-party audit, provider external effect, or proof of unattended alarm-only wake.",
+  "lockSha256": "95ff3da0d3ae236d6285c7609ff535a4a2489e16b1b301fbc7e41b321cae3dc8",
+  "markerBeforeFirstCrashPersisted": false,
+  "originalFirstWorkerVersion": "cec72591-7c39-40c4-b914-13cad9c89698",
+  "postDeleteHttp": 404,
+  "recordDateUtc": "2026-11-13",
+  "schema": 1,
+  "stripeCalls": 0,
+  "testMode": "hosted Cloudflare inert Pi 1.4, no Stripe binding",
+  "tokenDeleted": true,
+  "workerDeleted": true,
+  "workerName": "pi14-hosted-lab-ca58b4f6",
+  "workerSha256": "754080562a6d5d2fcfa084256b0ca14aaec677e1aefba73f621f4516adf4b58b"
+}
