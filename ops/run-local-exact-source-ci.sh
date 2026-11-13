@@ -57,6 +57,7 @@ docker run --rm --init --name "$name" --network bridge \
       assert.equal(m.counts["C-authority-ledger"].unsafe,0);
       console.log("CI_VERIFIED_MATRIX 120/9/15/3");
     '\''
+    echo "CI_PHASE hosted_pi14_evidence"; node experiments/pi14-hosted-inert/verify-evidence.mjs
     echo "EXACT_SOURCE_LOCAL_CI_PASSED"
   ' >> "$log" 2>&1
 code=$?

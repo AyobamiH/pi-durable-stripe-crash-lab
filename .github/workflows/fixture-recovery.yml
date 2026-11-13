@@ -53,3 +53,5 @@ jobs:
         run: node experiments/recovery-contract/webhook-e2e.mjs --output .evidence/recovery/ci-webhook
       - name: Adversarial permission and identity controls
         run: node experiments/recovery-contract/adversarial-e2e.mjs --output .evidence/recovery/ci-adversarial
+      - name: Verify redacted hosted Pi 1.4 evidence and teardown
+        run: node experiments/pi14-hosted-inert/verify-evidence.mjs
