@@ -45,3 +45,16 @@ The command checks the owner's exact remote branch HEAD, acquires a single-run l
 A private execution of this recipe passed against signed commit 5eb655a4a57b00964ac19b4d06c0eb277a92b26b: lockfile installation, TypeScript, all 35 original unit tests, both Wrangler crash E2Es, replay comparison, 120 recovery matrix cells, nine concurrent runs, 15 SIGKILL webhook cases and three adversarial groups. Its log SHA-256 is 1619f4388944bdd1b7e3ddddccc1b3b2b164aa46a0bfc0e03357c6778b3abbc0.
 
 **Evidence separation:** an owner-local success must use its own local CI status context. It neither alters the queued fixture-recovery GitHub Actions result nor proves GitHub provider acceptance. A later source revision must be re-tested at its exact SHA.
+
+
+## Working GitHub Actions registration-token route (13 November)
+
+The earlier JIT workflow produced invalidated sessions. The subsequent **repository-scoped, ephemeral registration-token** route successfully assigned and executed the 12 November merged-main job, including the original Pi 1.3 and new recovery suites. That CI job uncovered a real **test-harness observability defect** in the webhook child result at line 85; it did not complete the entire suite.
+
+Use the new owner-scoped command for one already-queued exact job:
+
+    bash ops/run-github-ephemeral-registration.sh FULL_SIGNED_SHA EXISTING_RUN_ID EXISTING_JOB_ID
+
+The script confirms the exact GitHub run SHA, one queued fixture-recovery job, custom pi-research label, owner identity, no existing research runner/container, and the pinned runner image before requesting a registration token. It transfers the short-lived token directly through a pipe into an unprivileged, disposable container; no host secrets, Docker socket or machine directories are mounted. Job results must be independently retrieved from the GitHub Actions API. Unlike the owner-local CI script, this route produces genuine GitHub workflow steps.
+
+It is intentionally one-shot and does not run when the owning machine is disconnected. Do not start multiple listeners for one job or use the legacy JIT route merely to obtain a green status. If the provider invalidates a registration or networking fails, retain the actual job state and stop.
