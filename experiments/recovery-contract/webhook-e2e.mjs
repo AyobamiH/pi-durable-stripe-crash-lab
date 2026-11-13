@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { appendFileSync } from "node:fs";
+import { invokeChild, assertChildOutcome } from "./subprocess-receipt.mjs";
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join,resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -24,11 +25,16 @@ for(const kind of kinds){
     const modes={control:"normal","crash-before-effect":"kill-before-effect","crash-after-effect":"kill-after-effect","bad-signature":"normal","conflicting-payload":"normal"};
     const logs=[];
     function child(mode,file=input){
-      const p=spawnSync(process.execPath,[new URL("./webhook-worker.mjs",import.meta.url).pathname,dir,file,mode],{
-        encoding:"utf8",timeout:15000
-      });
-      const receipt={status:p.status,signal:p.signal,stdout:p.stdout.trim().slice(0,1200),stderr:p.stderr.trim().slice(0,500)};
+      const receipt=invokeChild(
+        process.execPath,[new URL("./webhook-worker.mjs",import.meta.url).pathname,dir,file,mode]
+      );
       logs.push(receipt);
+      // Persist before asserting the child result, including ETIMEDOUT or
+      // another signal, so a failed CI run preserves a precise diagnosis.
+      appendFileSync(join(dir,"child-outcomes.jsonl"),JSON.stringify({
+        sequence:logs.length,mode,input:mode==="normal" ? "delivery" : "fault",
+        ...receipt,
+      })+"\n",{mode:0o600});
       return receipt;
     }
     let started;
@@ -37,11 +43,14 @@ for(const kind of kinds){
       const badFile=join(dir,"tampered.json");
       writeFileSync(badFile,JSON.stringify(bad),{mode:0o600});
       started=child("normal",badFile);
-      assert.equal(started.status,2);
+      assertChildOutcome(started,2,kind+" initial invalid-signature");
     }else{
       started=child(modes[kind]);
-      if(kind.startsWith("crash"))assert.equal(started.signal,"SIGKILL","Fault injector must really kill the subprocess");
-      else assert.equal(started.status,0);
+      if(kind.startsWith("crash")){
+        assert.equal(started.error,null,"Injected SIGKILL must not be a timed-out process");
+        assert.equal(started.timedOut,false);
+        assert.equal(started.signal,"SIGKILL","Fault injector must really kill the subprocess");
+      } else assertChildOutcome(started,0,kind+" initial delivery");
     }
     function independent(){
       const inboxPath=join(dir,"inbox.sqlite"),receiverPath=join(dir,"downstream.sqlite");
@@ -74,21 +83,22 @@ for(const kind of kinds){
       const alternate=join(dir,"conflict.json");
       writeFileSync(alternate,JSON.stringify(conflict),{mode:0o600});
       const rejected=child("normal",alternate);
-      assert.equal(rejected.status,2);
+      assertChildOutcome(rejected,2,kind+" conflicting-payload rejected");
       assert.equal(independent().receiverEffects,1);
     }
     // Recover from the crash via a brand-new worker process. This is a
     // real OS SIGKILL + restart, not just a control-flow exception.
     const completed=child("normal");
-    assert.equal(completed.status,0);
+    assertChildOutcome(completed,0,kind+" recovery");
     const duplicated=child("normal");
-    assert.equal(duplicated.status,0);
+    assertChildOutcome(duplicated,0,kind+" duplicate delivery");
     const after=independent();
     assert.equal(after.inboxState,"acked");
     assert.equal(after.receiverEffects,1,"Exactly one measurable downstream effect with cooperating unique receiver");
     assert.ok(after.deliveries>=2);
     assert.ok(after.receiverRequests>=1);
     const result={kind,rep,eventId,first:started,during,after,recovery:completed,duplicateDelivery:duplicated,
+      children:logs,
       scope:"isolated OS processes and separate SQLite ledgers",realExternalFulfilment:false,providerCooperationRequired:true};
     writeFileSync(join(dir,"result.json"),JSON.stringify(result,null,2)+"\n",{flag:"wx",mode:0o600});
     records.push(result);

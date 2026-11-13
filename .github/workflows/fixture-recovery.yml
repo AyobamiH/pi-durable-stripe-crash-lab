@@ -47,6 +47,8 @@ jobs:
         run: node experiments/recovery-contract/run.mjs --output .evidence/recovery/ci-matrix
       - name: Real competing recovery processes
         run: node experiments/recovery-contract/concurrency-e2e.mjs --output .evidence/recovery/ci-concurrency
+      - name: Classify subprocess success, timeout, signal and refusal
+        run: node --test experiments/recovery-contract/subprocess-receipt.test.mjs
       - name: SIGKILL webhook downstream E2E
         run: node experiments/recovery-contract/webhook-e2e.mjs --output .evidence/recovery/ci-webhook
       - name: Adversarial permission and identity controls
